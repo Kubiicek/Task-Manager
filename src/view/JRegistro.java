@@ -121,12 +121,15 @@ public class JRegistro extends JFrame {
 		JBtnVoltar.setBackground(new Color(0, 51, 102));
 		JBtnVoltar.setBounds(109, 209, 89, 23);
 		contentPane.add(JBtnVoltar);
-		
-		JButton JBtnSalvar = new JButton("Salvar");
+		JButton JBtnSalvar = new JButton("Proximo");
 		JBtnSalvar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Consultas con = new Consultas();
-				con.salvarUsuario(JTextUser.getText(), JTextSenha.getText());
+				 String username = JTextUser.getText();
+				 String password = JTextSenha.getText();
+				 JRecoverPass jrecoverPass = new JRecoverPass(username, password);
+				 jrecoverPass.setLocationRelativeTo(null);
+				 jrecoverPass.setVisible(true);
+				 dispose();
 			}
 		});
 		JBtnSalvar.setForeground(Color.WHITE);

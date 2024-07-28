@@ -136,12 +136,6 @@ public class JLogin extends JFrame {
 		JBtnRegistrar.setBounds(167, 411, 100, 23);
 		contentPane.add(JBtnRegistrar);
 		
-		JLabel PassEsquecida = new JLabel("Esqueceu sua senha?");
-		PassEsquecida.setForeground(Color.WHITE);
-		PassEsquecida.setFont(new Font("Lucida Sans", Font.BOLD, 14));
-		PassEsquecida.setBounds(143, 448, 176, 30);
-		contentPane.add(PassEsquecida);
-		
 		JTextPass = new JPasswordField();
 		JTextPass.setHorizontalAlignment(SwingConstants.CENTER);
 		JTextPass.setForeground(new Color(255, 255, 255));
@@ -150,5 +144,22 @@ public class JLogin extends JFrame {
 		JTextPass.setBounds(111, 313, 219, 20);
 		JTextPass.setBorder(null);
 		contentPane.add(JTextPass);
+		
+		JButton btnNewButton = new JButton("Esqueceu sua senha?");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+				JRecover jRecover = new JRecover(JTextUsuario.getText());
+				jRecover.setLocationRelativeTo(jRecover);
+				jRecover.setVisible(true);
+			}
+		});
+		btnNewButton.setForeground(new Color(255, 255, 255));
+		btnNewButton.setFont(new Font("Lucida Sans", Font.BOLD, 14));
+		btnNewButton.setBounds(127, 452, 203, 23);
+		btnNewButton.setOpaque(false);
+		btnNewButton.setContentAreaFilled(false);
+		btnNewButton.setBorderPainted(false);
+		contentPane.add(btnNewButton);
 	}
 }
