@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>TaskManager</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>src/images/key.png</name>
+			<type>1</type>
+			<location>D:/Recursos/Recursos/Images/key.png</location>
+		</link>
+		<link>
+			<name>src/images/previous.png</name>
+			<type>1</type>
+			<location>D:/Recursos/Recursos/Images/previous.png</location>
+		</link>
+		<link>
+			<name>src/images/userInicio.png</name>
+			<type>1</type>
+			<location>D:/Recursos/Recursos/Images/userInicio.png</location>
+		</link>
+		<link>
+			<name>src/images/userLabel.png</name>
+			<type>1</type>
+			<location>D:/Recursos/Recursos/Images/userLabel.png</location>
+		</link>
+	</linkedResources>
+</projectDescription>
