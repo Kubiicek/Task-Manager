@@ -112,7 +112,9 @@ public class JLogin extends JFrame {
 		JBtnEntrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Consultas con = new Consultas();
-				con.consultarUsuario(JTextUsuario.getText(), JTextPass.getText());
+				if (con.consultarUsuario(JTextUsuario.getText(), JTextPass.getText()) == true) {
+					System.out.println("Receba");
+				}
 			}
 		});
 		JBtnEntrar.setForeground(new Color(255, 255, 255));

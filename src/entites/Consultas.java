@@ -34,7 +34,7 @@ public class Consultas {
 		} 
 	}
 	
-	public void consultarUsuario(String user, String pass) {
+	public boolean consultarUsuario(String user, String pass) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -58,10 +58,11 @@ public class Consultas {
 			 
 			 if (user.equals(usuarioCorreto) && pass.equals(passCorreto)) {
 				 JOptionPane.showMessageDialog(null, "Login correto. Bem-vindo(a) " + user);
+				 return true;
 			 } else {
 				 JOptionPane.showMessageDialog(null, "Usuário ou senha incorretos");
+				 return false;
 			 }
-			 
 		 } catch (Exception e) {
 			 JOptionPane.showMessageDialog(null, "Erro: " + e.getMessage());
 		 } finally {
@@ -79,8 +80,8 @@ public class Consultas {
 					 e.printStackTrace();
 				 }
 			 }
-			 // Feche a conexao caso queira.
 		}
+		 return false;
 	}
 
 	public void verificarRecuperacao(String usuario, String answer) {
