@@ -26,8 +26,10 @@ public class JTaskFrame extends JFrame {
     private JTextField textFieldData;
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     private JButton btnVoltar;
+    private int userId;
 
-    public JTaskFrame() {
+    public JTaskFrame(int userId) {
+        this.userId = userId;
         setTitle("Tarefas");
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setBounds(100, 100, 520, 241);
@@ -92,7 +94,7 @@ public class JTaskFrame extends JFrame {
         btnVoltar.setBounds(393, 155, 89, 23);
         contentPane.add(btnVoltar);
         
-        JLabel lbldiamesanoHoraminuto = new JLabel("(dia/mes/ano hora:minuto):");
+        JLabel lbldiamesanoHoraminuto = new JLabel("(dd/MM/yyyy HH:mm):");
         lbldiamesanoHoraminuto.setForeground(Color.WHITE);
         lbldiamesanoHoraminuto.setFont(new Font("Lucida Sans", Font.BOLD, 12));
         lbldiamesanoHoraminuto.setBounds(10, 58, 192, 14);
@@ -113,7 +115,7 @@ public class JTaskFrame extends JFrame {
                     Date parsedDate = dateFormat.parse(data);
                     String formattedDate = dateFormat.format(parsedDate);
 
-                    JAplicativo.adicionarTarefa(nome, formattedDate, descricao.isEmpty() ? "Sem descrição" : descricao);
+                    JAplicativo.adicionarTarefa(nome, formattedDate, descricao.isEmpty() ? "Sem descrição" : descricao, userId);
 
                     JOptionPane.showMessageDialog(contentPane, "Tarefa adicionada com sucesso.");
                     textFieldNome.setText("");

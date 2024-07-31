@@ -10,6 +10,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JSeparator;
@@ -113,7 +114,16 @@ public class JLogin extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				Consultas con = new Consultas();
 				if (con.consultarUsuario(JTextUsuario.getText(), JTextPass.getText()) == true) {
-					System.out.println("Receba");
+					        Consultas conn = new Consultas();
+					        int userId = conn.consultarInt(JTextUsuario.getText(), new String(JTextPass.getPassword()));
+					        if (userId != -1) { 
+					            dispose();
+					            JAplicativo jApp = new JAplicativo(userId);
+					            jApp.setLocationRelativeTo(null);
+					            jApp.setVisible(true);
+					        } else {
+					            JOptionPane.showMessageDialog(contentPane, "Usuário ou senha inválidos.");
+					        }
 				}
 			}
 		});

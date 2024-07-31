@@ -5,9 +5,14 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -22,19 +27,21 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.ColorUIResource;
 
+import entites.DB;
+
 public class JAplicativo extends JFrame {
 
     private static final long serialVersionUID = 1L;
     private static int buttons = 3;
     private JPanel contentPane;
-    private static List<String[]> tasks = new ArrayList<>();
     private JTextArea taskDisplay;
+    private int userId;
 
     public static void main(String[] args) {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    JAplicativo frame = new JAplicativo();
+                    JAplicativo frame = new JAplicativo(1); // Substitua 1 pelo ID real do usuário
                     frame.setLocationRelativeTo(null);
                     frame.setVisible(true);
                 } catch (Exception e) {
@@ -50,7 +57,8 @@ public class JAplicativo extends JFrame {
         UIManager.put("ScrollPane.background", new ColorUIResource(32, 32, 32));
     }
 
-    public JAplicativo() {
+    public JAplicativo(int userId) {
+        this.userId = userId; 
         setTitle("Aplicativo");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setBounds(100, 100, 479, 582);
@@ -105,15 +113,13 @@ public class JAplicativo extends JFrame {
 
         Hoje.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                displayTarefasParaHoje();
+                displayTarefasParaHoje(userId);
             }
         });
 
         Habitos.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                if (buttons != 2) {
-                    
-                }
+                
             }
         });
 
@@ -131,15 +137,15 @@ public class JAplicativo extends JFrame {
                         options[0]
                 );
 
-                if (choice == 0) { 
-                    JTaskFrame jTask = new JTaskFrame();
+                if (choice == 0) {
+                    JTaskFrame jTask = new JTaskFrame(userId); 
                     jTask.setLocationRelativeTo(null);
                     jTask.setVisible(true);
                     buttons = 1;
                 } else if (choice == 1) {
                     String taskName = JOptionPane.showInputDialog("Digite o nome da tarefa a ser removida:");
                     if (taskName != null && !taskName.trim().isEmpty()) {
-                        removerTarefa(taskName);
+                        removerTarefa(taskName, userId);
                     }
                 }
             }
@@ -147,7 +153,7 @@ public class JAplicativo extends JFrame {
 
         Agenda.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                displayTodasTarefas();
+                displayTodasTarefas(userId);
             }
         });
 
@@ -162,66 +168,99 @@ public class JAplicativo extends JFrame {
         scrollPane.setBounds(10, 11, 443, 480);
         contentPane.add(scrollPane);
 
-        displayTarefasParaHoje();
+        displayTarefasParaHoje(userId);
     }
 
     public static void setButton(int value) {
         buttons = value;
     }
+    
+    public static void adicionarTarefa(String nome, String data, String descricao, int userId) {
+        String sql = "INSERT INTO tarefas (idUsuario, task_name, task_date, task_description) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            stmt.setString(2, nome);
 
-    public static void adicionarTarefa(String nome, String data, String descricao) {
-        tasks.add(new String[]{nome, data, descricao});
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+            java.util.Date utilDate = sdf.parse(data);
+            java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(utilDate.getTime());
+
+            stmt.setTimestamp(3, sqlTimestamp);
+            stmt.setString(4, descricao);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
-    public static void removerTarefa(String nome) {
-        boolean found = false;
-        for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i)[0].equalsIgnoreCase(nome)) {
-                tasks.remove(i);
-                found = true;
-                break;
+
+    public static void removerTarefa(String nome, int userId) {
+        String sql = "DELETE FROM tarefas WHERE task_name = ? AND idUsuario = ?";
+        try (Connection conn = DB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, nome);
+            stmt.setInt(2, userId);
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(null, "Tarefa removida com sucesso.");
+            } else {
+                JOptionPane.showMessageDialog(null, "Tarefa não encontrada.");
             }
-        }
-        if (found) {
-            JOptionPane.showMessageDialog(null, "Tarefa removida com sucesso.");
-        } else {
-            JOptionPane.showMessageDialog(null, "Tarefa não encontrada.");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
-    private void displayTarefasParaHoje() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        String todayDate = dateFormat.format(new Date());
 
-        StringBuilder message = new StringBuilder("Tarefas para hoje:\n\n"); 
-        boolean hasTasks = false;
+    private void displayTarefasParaHoje(int userId) {
+        String sql = "SELECT task_name, task_date, task_description FROM tarefas WHERE idUsuario = ? AND DATE(task_date) = CURDATE()";
+        StringBuilder message = new StringBuilder("Tarefas para hoje:\n\n");
 
-        for (String[] task : tasks) {
-            if (task[1].startsWith(todayDate)) {
-                hasTasks = true;
-                message.append("Nome: ").append(task[0]).append("\n");
-                message.append("Data: ").append(task[1]).append("\n");
-                message.append("Descrição: ").append(task[2]).append("\n\n");
+        try (Connection conn = DB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                message.append("Nome: ").append(rs.getString("task_name")).append("\n");
+                message.append("Data: ").append(new SimpleDateFormat("dd/MM/yyyy HH:mm").format(rs.getTimestamp("task_date"))).append("\n");
+                message.append("Descrição: ").append(rs.getString("task_description")).append("\n\n");
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-        if (!hasTasks) {
-        	message.setLength(0);
-            message.append("Sem tarefas para hoje.");
+        if (message.length() == 0) {
+            message.append("Nenhuma tarefa encontrada.");
         }
 
         taskDisplay.setText(message.toString());
     }
 
-    private void displayTodasTarefas() {
+    private void displayTodasTarefas(int userId) {
+        String sql = "SELECT task_name, task_date, task_description FROM tarefas WHERE idUsuario = ?";
         StringBuilder message = new StringBuilder("Todas as tarefas:\n\n");
 
-        for (String[] task : tasks) {
-            message.append("Nome: ").append(task[0]).append("\n");
-            message.append("Data: ").append(task[1]).append("\n");
-            message.append("Descrição: ").append(task[2]).append("\n\n");
+        try (Connection conn = DB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                message.append("Nome: ").append(rs.getString("task_name")).append("\n");
+                message.append("Data: ").append(new SimpleDateFormat("dd/MM/yyyy HH:mm").format(rs.getTimestamp("task_date"))).append("\n");
+                message.append("Descrição: ").append(rs.getString("task_description")).append("\n\n");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (message.length() == 0) {
+            message.append("Nenhuma tarefa encontrada.");
         }
 
         taskDisplay.setText(message.toString());
     }
+
 }
